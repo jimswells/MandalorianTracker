@@ -14,7 +14,6 @@ void setup() {
   //Load beacon with saved data
   loadBeacons();
 
-  
   showStart();
 }
 
@@ -25,12 +24,7 @@ void loop() {
     // get incoming byte:
     String inByte = Serial.readString();
     inByte.trim();
-    // read first analog input, divide by 4 to make the range 0-255:
-    //Serial.println(beacons[inByte].name);
-    //beacons[inByte].markCompleted();    
-    //Serial.print("-");
-    //Serial.print(inByte);
-    //Serial.println("-");
+
     if (inByte == "list")
     {
       showList();
@@ -44,14 +38,27 @@ void loop() {
       showScan();
     }
 
-    if (inByte == "C")
+    if (inByte == "reset")
     {
       clearMemory();
+      loadBeacons();
     }
     
     if (inByte == "1")
     {
-      beacons[4].markCompleted(); 
+      beacons[0].markCompleted(); 
+    }
+    if (inByte == "2")
+    {
+      beacons[1].markCompleted(); 
+    }
+    if (inByte == "3")
+    {
+      beacons[2].markCompleted(); 
+    }
+    if (inByte == "4")
+    {
+      beacons[3].markCompleted(); 
     }
   }
 }
@@ -72,7 +79,7 @@ void showScan()
 
 void showList()
 {
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < MAX_BEACONS; i++)
     {
       Serial.print("[");
       Serial.print(beacons[i].isCompleted);

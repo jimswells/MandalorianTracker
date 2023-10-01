@@ -13,9 +13,6 @@ int getValue(int value)
 
 void setValue(int addr, int value)
 {
-  Serial.print(addr);
-  Serial.print(" - ");
-  Serial.println(value);
   EEPROM.write(addr, value);
   EEPROM.commit();
 }
@@ -91,8 +88,5 @@ void loadBeacons()
   beacons[2] = Beacon("Hollywood Studios", "UUID2", -80);
   beacons[3] = Beacon("Sugar Mill", "UUID2", -80);
   beacons[4] = Beacon("Richloam General Store", "UUID2", -80);
-
-  //List
-  
-  Serial.println("Hello, ESP32!");
+  Serial.println("Loaded Beacons");
 }
