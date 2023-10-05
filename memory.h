@@ -1,11 +1,8 @@
-#include <EEPROM.h>
 
 #define EEPROM_SIZE 64
 
 int getValue(int value)
-{
-  return EEPROM.read(value);
-}
+{ return EEPROM.read(value); }
 
 void setValue(int addr, int value)
 {
@@ -20,7 +17,7 @@ void firstLoadMemory()
   else
   { Serial.println("initialised EEPROM"); }
 
-  if (getValue(60) != 7)
+  if (getValue(60) != 7)//Firstload bit
   {
     Serial.println("clearing inital values");
     for (int i = 0; i < EEPROM_SIZE; i++)
@@ -33,6 +30,6 @@ void firstLoadMemory()
 
 void clearMemory()
 {//debug 
-  setValue(60,0);
+  setValue(60,0);//Firstload bit
   firstLoadMemory();
 }

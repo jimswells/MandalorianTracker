@@ -1,20 +1,20 @@
 //Mando Tracker
 //Bluetooth beacon tracker for scavenger hunt
-
+ 
 #include <WiFi.h>
 #include <WebServer.h>
 #include <EMailSender.h>
+#include <EEPROM.h>
 #include "beacons.h"
 #include "screen.h"
 #include "memory.h"
 
 bool debugMode = true;
-const char* ssid       = "<WIFI>";
-const char* password   = "<password>";
-EMailSender emailSend("<Gmailfromemail>", "<GMailpasscode>");
-const char* smsAddress = "<toaddress>";
 
-WebServer server(80);
+const char* ssid       = "<SccessPoint>";
+const char* password   = "<Passowrd>";
+EMailSender emailSend("<FromGmailAddress>", "<AccessToken>");
+const char* smsAddress = "<ToEmail/SMSAddress>";
 
 void setup() {
   // put your setup code here, to run once:
@@ -28,6 +28,7 @@ void setup() {
   //Inital page
   showStart();
 
+  //Check if there are notifications and if they are home
   checkNotifications();
 }
 
@@ -59,16 +60,31 @@ void loop() {
 
 void checkNotifications()
 {
+  //Skip connection if nothing to send
+  //Skipping wifi attempt after a couple seconds
   
+  bool attemptNotification = false;
+  for (int i = 0; i < MAX_BEACONS; i++) { if (beacons[i].isCompleted == true && beacons[i].isNotified == false) { attemptNotification = true; }}
+
+  if (!attemptNotification)//Return if nothing
+  { Serial.println("Skipping notification because nothing to notify"); return; }
+    
   // Connect to WiFi network
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
 
   // Wait for connection
+  int wfifcount = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    if (wfifcount >= 5)
+    {
+      Serial.println("Skip email because we cannont connect");
+      return;//Skip email because we cannont connect
+    }
+    wfifcount++;
   }
   
   Serial.println("");
@@ -80,7 +96,7 @@ void checkNotifications()
   for (int i = 0; i < MAX_BEACONS; i++)
   {
     if (beacons[i].isCompleted == true && beacons[i].isNotified == false)
-    {
+    {//Completed by not notified
       beacons[i].markNotiofied();
       EMailSender::EMailMessage message;
       message.subject = "Adventure";
@@ -93,19 +109,6 @@ void checkNotifications()
       Serial.println(resp.code);
       Serial.println(resp.desc);
       Serial.println("Sending notificaton for " + String(beacons[i].name));
-      server.send(200,"text/html","Ok");
     }
   }
-}
-
-void ping()//Not used yet
-{
-    //connect to WiFi
-  Serial.printf("Connecting to %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-  }
-  Serial.println(" CONNECTED");
 }
